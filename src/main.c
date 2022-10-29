@@ -10,6 +10,7 @@
 #include <string.h>
 #include <sys/utsname.h>
 #include <sys/ioctl.h>
+#include <sys/statvfs.h>
 
 /// Gets the CPU model from PROC_CPU_INFO.
 ///
@@ -61,6 +62,20 @@ int getWindowSize(int* width, int* height) {
 	return 0;
 }
 
+/// Gets the size and usage of the root filesystem.
+int getRootSize(unsigned long* size, unsigned long* usage) {
+	struct statvfs filesystemStats;
+
+	if (statvfs("/etc/fstab", &filesystemStats) != 0) {
+		perror("Failed to retrieve file system information");
+		return -1;
+	}
+
+	*size = filesystemStats.f_frsize * filesystemStats.f_blocks;
+	*usage = filesystemStats.f_frsize * (filesystemStats.f_blocks - filesystemStats.f_bfree);
+	return 0;
+}
+
 int main() {
 	struct utsname utsname;
 	struct utsname* utsname_ptr = &utsname;	
@@ -86,11 +101,50 @@ int main() {
 	for (int i = 0; i < topMarginLength; i++)
 		topMargin[i] = '\n';
 
+	// Cut down utsname.release to be just the kernel version.
+	char* kernelVersion = strtok(utsname.release, "-");
+
+	int power;
+	unsigned long rootSize;
+	unsigned long rootUsed;
+	getRootSize(&rootSize, &rootUsed);
+
+	for (power = 0; rootSize > 1024; power++)
+		rootSize /= 1024;
+
+	char* unit;
+
+	switch (power) {
+		case 0:
+			unit = "B";
+			break;
+		case 1:
+			unit = "KiB";
+			break;
+		case 2:
+			unit = "MiB";
+			break;
+		case 3:
+			unit = "GiB";
+			break;
+		case 4:
+			unit = "TiB";
+			break;
+		case 5:
+			unit = "PiB";
+			break;
+	}
+
 	printf("%s", topMargin);
-	printf("%s  Kernel:\t%s\n", leftMargin, utsname.release);
-	printf("%s  Hostname:\t%s\n", leftMargin, utsname.nodename);
-	printf("%s  CPU Model:\t%s\n", leftMargin, cpu_model);
+	printf("%s  Kernel:\t\t%s\n", leftMargin, kernelVersion);
+	printf("%s  Hostname:\t\t%s\n", leftMargin, utsname.nodename);
+	printf("%s  Processor Model:\t%s", leftMargin, cpu_model);
+	printf("%s  Drive Capacity:\t%lu %s\n", leftMargin, rootSize, unit);
 	printf("%s", topMargin);
+	
+	// Keep the terminal prompt from showing until enter key is pressed
+	getchar();
+
 	return 0;
 }
 
