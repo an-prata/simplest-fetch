@@ -86,7 +86,6 @@ int main() {
 	for (int i = 0; i < topMarginLength; i++)
 		topMargin[i] = '\n';
 
-	system("clear");
 	printf("%s", topMargin);
 	printf("%s  Kernel:\t%s\n", leftMargin, utsname.release);
 	printf("%s  Hostname:\t%s\n", leftMargin, utsname.nodename);
