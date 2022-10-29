@@ -2,6 +2,7 @@
 // See LICENSE file in repository root for complete license text.
 
 #define PROC_CPU_INFO "/proc/cpuinfo"
+#define NUMBER_OF_LINES 3
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -74,10 +75,23 @@ int main() {
 	int windowHeight;
 	getWindowSize(&windowWidth, &windowHeight);
 
-	printf("\n");
-	printf("  Kernel:\t%s\n", utsname.release);
-	printf("  Hostname:\t%s\n", utsname.nodename);
-	printf("  CPU Model:\t%s\n", cpu_model);
+	int leftMarginLength = (windowWidth - strlen(cpu_model) - 15) / 2;
+	int topMarginLength = (windowHeight - NUMBER_OF_LINES) / 2;
+	char* leftMargin = malloc(leftMarginLength);
+	char* topMargin = malloc(topMarginLength);
+	
+	for (int i = 0; i < leftMarginLength; i++)
+		leftMargin[i] = ' ';
+
+	for (int i = 0; i < topMarginLength; i++)
+		topMargin[i] = '\n';
+
+	system("clear");
+	printf("%s", topMargin);
+	printf("%s  Kernel:\t%s\n", leftMargin, utsname.release);
+	printf("%s  Hostname:\t%s\n", leftMargin, utsname.nodename);
+	printf("%s  CPU Model:\t%s\n", leftMargin, cpu_model);
+	printf("%s", topMargin);
 	return 0;
 }
 
