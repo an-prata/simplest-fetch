@@ -77,11 +77,11 @@ int main() {
 
 	int leftMarginLength = (windowWidth - strlen(cpu_model) - 15) / 2;
 	int topMarginLength = (windowHeight - NUMBER_OF_LINES) / 2;
-	char* leftMargin = malloc(leftMarginLength);
+	char* leftMargin = malloc(leftMarginLength / 8);
 	char* topMargin = malloc(topMarginLength);
 	
-	for (int i = 0; i < leftMarginLength; i++)
-		leftMargin[i] = ' ';
+	for (int i = 0; i < leftMarginLength / 8; i++)
+		leftMargin[i] = '\t';
 
 	for (int i = 0; i < topMarginLength; i++)
 		topMargin[i] = '\n';
