@@ -98,7 +98,7 @@ int main() {
 	for (int i = 0; i < leftMarginLength / 8; i++)
 		leftMargin[i] = '\t';
 
-	for (int i = 0; i < topMarginLength; i++)
+	for (int i = 0; i < topMarginLength - 1; i++)
 		topMargin[i] = '\n';
 
 	// Cut down utsname.release to be just the kernel version.
@@ -140,7 +140,7 @@ int main() {
 	printf("%s  Hostname:\t\t%s\n", leftMargin, utsname.nodename);
 	printf("%s  Processor Model:\t%s", leftMargin, cpu_model);
 	printf("%s  Drive Capacity:\t%lu %s\n", leftMargin, rootSize, unit);
-	printf("%s", topMargin);
+	printf("%s\n", topMargin);
 	
 	// Keep the terminal prompt from showing until enter key is pressed
 	getchar();
