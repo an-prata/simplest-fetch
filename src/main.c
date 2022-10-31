@@ -112,6 +112,11 @@ int main() {
 	for (power = 0; rootSize > 1024; power++)
 		rootSize /= 1024;
 
+	double rootUsedDec = (double)rootUsed;
+
+	for (int i = 0; i < power; i++)
+		rootUsedDec /= 1024.0;
+
 	char* unit;
 
 	switch (power) {
@@ -139,7 +144,7 @@ int main() {
 	printf("%s  Kernel:\t\t%s\n", leftMargin, kernelVersion);
 	printf("%s  Hostname:\t\t%s\n", leftMargin, utsname.nodename);
 	printf("%s  Processor Model:\t%s", leftMargin, cpu_model);
-	printf("%s  Drive Capacity:\t%lu %s\n", leftMargin, rootSize, unit);
+	printf("%s  Drive Capacity:\t%3.1f %s used of %lu %s\n", leftMargin, rootUsedDec, unit, rootSize, unit);
 	printf("%s\n", topMargin);
 	
 	// Keep the terminal prompt from showing until enter key is pressed
