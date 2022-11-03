@@ -63,6 +63,17 @@ int getWindowSize(int* width, int* height) {
 }
 
 /// Gets the size and usage of the root filesystem.
+///
+/// @param size
+/// A pointer to an unsigned long to store the root
+/// drive's size.
+///
+/// @param usage
+/// A pointer to an unsigned long to store the root
+/// drive's usage.
+///
+/// @returns
+/// 0 on success, -1 on failiure.
 int getRootSize(unsigned long* size, unsigned long* usage) {
 	struct statvfs filesystemStats;
 
@@ -74,6 +85,59 @@ int getRootSize(unsigned long* size, unsigned long* usage) {
 	*size = filesystemStats.f_frsize * filesystemStats.f_blocks;
 	*usage = filesystemStats.f_frsize * (filesystemStats.f_blocks - filesystemStats.f_bfree);
 	return 0;
+}
+
+/// Get the memory capacity of the local device.
+///
+/// @returns
+/// The device's memory capacity in bytes.
+long getMemoryCapacity() {
+	char memCapacityStr[64];
+	FILE* meminfo = fopen("/proc/meminfo", "r");
+	bool numberFinishedReading = false;
+	bool foundNumber = false;
+
+	for (int c = 0; !numberFinishedReading;) {
+		char cc = fgetc(meminfo);
+
+		if (strchr("1234567890", cc) != NULL) {
+			foundNumber = true;
+			memCapacityStr[c] = cc;
+			c++; // hehe, c++
+		} else if (foundNumber) {
+			numberFinishedReading = true;
+		}
+	}
+
+	// meminfo is in KB to multiply by 1000.
+	return atol(memCapacityStr) * 1000;
+}
+
+char* unitFromPower(int power) {
+	char* unit = malloc(3);
+
+	switch (power) {
+		case 0:
+			unit = "B";
+			break;
+		case 1:
+			unit = "KiB";
+			break;
+		case 2:
+			unit = "MiB";
+			break;
+		case 3:
+			unit = "GiB";
+			break;
+		case 4:
+			unit = "TiB";
+			break;
+		case 5:
+			unit = "PiB";
+			break;
+	}
+
+	return unit;
 }
 
 int main() {
@@ -109,42 +173,29 @@ int main() {
 	unsigned long rootUsed;
 	getRootSize(&rootSize, &rootUsed);
 
-	for (power = 0; rootSize > 1024; power++)
-		rootSize /= 1024;
-
+	double rootSizeDec = (double)rootSize;
 	double rootUsedDec = (double)rootUsed;
 
-	for (int i = 0; i < power; i++)
+	for (power = 0; rootSizeDec > 1024.0; power++) {
+		rootSizeDec /= 1024.0;
 		rootUsedDec /= 1024.0;
-
-	char* unit;
-
-	switch (power) {
-		case 0:
-			unit = "B";
-			break;
-		case 1:
-			unit = "KiB";
-			break;
-		case 2:
-			unit = "MiB";
-			break;
-		case 3:
-			unit = "GiB";
-			break;
-		case 4:
-			unit = "TiB";
-			break;
-		case 5:
-			unit = "PiB";
-			break;
 	}
+
+	char* unit = unitFromPower(power);
+
+	double memCapacity = (double)getMemoryCapacity();
+
+	for (power = 0; memCapacity > 1024.0; power++)
+		memCapacity /= 1024.0;
+
+	char* memUnit = unitFromPower(power);
 
 	printf("%s", topMargin);
 	printf("%s  Kernel:\t\t%s\n", leftMargin, kernelVersion);
-	printf("%s  Hostname:\t\t%s\n", leftMargin, utsname.nodename);
-	printf("%s  Processor Model:\t%s", leftMargin, cpu_model);
-	printf("%s  Drive Capacity:\t%3.1f %s used of %lu %s\n", leftMargin, rootUsedDec, unit, rootSize, unit);
+	printf("%s  Hostname:\t\t%s\n", leftMargin, utsname.nodename);
+	printf("%s  Processor Model:\t%s", leftMargin, cpu_model);
+	printf("%s  Memory Capacity:\t%3.1f %s\n", leftMargin, memCapacity, memUnit);
+	printf("%s  Drive Capacity:\t%3.1f %s used of %3.1f %s\n", leftMargin, rootUsedDec, unit, rootSizeDec, unit);
 	printf("%s\n", topMargin);
 	
 	// Keep the terminal prompt from showing until enter key is pressed
