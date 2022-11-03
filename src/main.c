@@ -11,39 +11,7 @@
 #include <sys/utsname.h>
 #include <sys/ioctl.h>
 #include <sys/statvfs.h>
-
-/// Gets the CPU model from PROC_CPU_INFO.
-///
-/// @returns
-/// The name of the system's CPU model. NULL on failiure.
-char* get_cpu_model() {
-	FILE* cpuinfo_file;
-	cpuinfo_file = fopen(PROC_CPU_INFO, "r");
-
-	if (cpuinfo_file == NULL) {
-		char* err = malloc(30);
-		strncpy(err, "Could not read ", 30);
-		strncat(err, PROC_CPU_INFO, 30);
-
-		perror(err);
-		exit(EXIT_FAILURE);
-	}
-
-	char* line = malloc(1024);
-
-	while(fgets(line, 1024, cpuinfo_file) != NULL) {
-		if (strstr(line, "model name") != NULL) {
-			char* cpu_name = malloc(strlen(line) - 13);
-
-			for (int character = 13; character < strlen(line); character++)
-				cpu_name[character - 13] = line[character];
-
-			return cpu_name;
-		}
-	}
-
-	return "\0";
-}
+#include "sysinf.h"
 
 /// Gets the size of the current terminal window.
 ///
@@ -60,57 +28,6 @@ int get_window_size(int* width, int* height) {
 	*height = windowSize.ws_row;
 
 	return 0;
-}
-
-/// Gets the size and usage of the root filesystem.
-///
-/// @param size
-/// A pointer to an unsigned long to store the root
-/// drive's size.
-///
-/// @param usage
-/// A pointer to an unsigned long to store the root
-/// drive's usage.
-///
-/// @returns
-/// 0 on success, -1 on failiure.
-int get_root_size(unsigned long* size, unsigned long* usage) {
-	struct statvfs filesystemStats;
-
-	if (statvfs("/etc/fstab", &filesystemStats) != 0) {
-		perror("Failed to retrieve file system information");
-		return -1;
-	}
-
-	*size = filesystemStats.f_frsize * filesystemStats.f_blocks;
-	*usage = filesystemStats.f_frsize * (filesystemStats.f_blocks - filesystemStats.f_bfree);
-	return 0;
-}
-
-/// Get the memory capacity of the local device.
-///
-/// @returns
-/// The device's memory capacity in bytes.
-long get_memory_capacity() {
-	char memCapacityStr[64];
-	FILE* meminfo = fopen("/proc/meminfo", "r");
-	bool numberFinishedReading = false;
-	bool foundNumber = false;
-
-	for (int c = 0; !numberFinishedReading;) {
-		char cc = fgetc(meminfo);
-
-		if (strchr("1234567890", cc) != NULL) {
-			foundNumber = true;
-			memCapacityStr[c] = cc;
-			c++; // hehe, c++
-		} else if (foundNumber) {
-			numberFinishedReading = true;
-		}
-	}
-
-	// meminfo is in KB to multiply by 1000.
-	return atol(memCapacityStr) * 1000;
 }
 
 char* unit_from_power(int power) {
