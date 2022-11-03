@@ -1,16 +1,13 @@
 // Copyright (c) 2022 Evan Overman (https://an-prata.it). Licensed under the MIT License.
 // See LICENSE file in repository root for complete license text.
 
-#define PROC_CPU_INFO "/proc/cpuinfo"
 #define NUMBER_OF_LINES 3
 
 #include <stdio.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/utsname.h>
 #include <sys/ioctl.h>
-#include <sys/statvfs.h>
 #include "sysinf.h"
 
 /// Gets the size of the current terminal window.
