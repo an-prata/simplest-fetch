@@ -52,7 +52,7 @@ char* get_cpu_model() {
 ///
 /// @param height 
 /// A pointer to an int that will store the window's height.
-int getWindowSize(int* width, int* height) {
+int get_window_size(int* width, int* height) {
 	struct winsize windowSize;
 	ioctl(0, TIOCGWINSZ, &windowSize);
 
@@ -74,7 +74,7 @@ int getWindowSize(int* width, int* height) {
 ///
 /// @returns
 /// 0 on success, -1 on failiure.
-int getRootSize(unsigned long* size, unsigned long* usage) {
+int get_root_size(unsigned long* size, unsigned long* usage) {
 	struct statvfs filesystemStats;
 
 	if (statvfs("/etc/fstab", &filesystemStats) != 0) {
@@ -91,7 +91,7 @@ int getRootSize(unsigned long* size, unsigned long* usage) {
 ///
 /// @returns
 /// The device's memory capacity in bytes.
-long getMemoryCapacity() {
+long get_memory_capacity() {
 	char memCapacityStr[64];
 	FILE* meminfo = fopen("/proc/meminfo", "r");
 	bool numberFinishedReading = false;
@@ -113,7 +113,7 @@ long getMemoryCapacity() {
 	return atol(memCapacityStr) * 1000;
 }
 
-char* unitFromPower(int power) {
+char* unit_from_power(int power) {
 	char* unit = malloc(3);
 
 	switch (power) {
@@ -152,7 +152,7 @@ int main() {
 
 	int windowWidth;
 	int windowHeight;
-	getWindowSize(&windowWidth, &windowHeight);
+	get_window_size(&windowWidth, &windowHeight);
 
 	int leftMarginLength = (windowWidth - strlen(cpu_model) - 15) / 2;
 	int topMarginLength = (windowHeight - NUMBER_OF_LINES) / 2;
@@ -171,7 +171,7 @@ int main() {
 	int power;
 	unsigned long rootSize;
 	unsigned long rootUsed;
-	getRootSize(&rootSize, &rootUsed);
+	get_root_size(&rootSize, &rootUsed);
 
 	double rootSizeDec = (double)rootSize;
 	double rootUsedDec = (double)rootUsed;
@@ -181,14 +181,14 @@ int main() {
 		rootUsedDec /= 1024.0;
 	}
 
-	char* unit = unitFromPower(power);
+	char* unit = unit_from_power(power);
 
-	double memCapacity = (double)getMemoryCapacity();
+	double memCapacity = (double)get_memory_capacity();
 
 	for (power = 0; memCapacity > 1024.0; power++)
 		memCapacity /= 1024.0;
 
-	char* memUnit = unitFromPower(power);
+	char* memUnit = unit_from_power(power);
 
 	printf("%s", topMargin);
 	printf("%s  Kernel:\t\t%s\n", leftMargin, kernelVersion);
@@ -203,4 +203,3 @@ int main() {
 
 	return 0;
 }
-
