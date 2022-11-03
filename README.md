@@ -1,4 +1,4 @@
 # simplest-fetch
 The simplest fetch program you'll ever find, written in C. No seriously, this is what it looks like:
-![Screenshot on October 29, 2022 - 12:13:21 PM](https://user-images.githubusercontent.com/91640048/198848915-06f79b67-4ec7-4ca0-97df-762d582a2574.png)
+![Screenshot on November 03, 2022 - 4:44:44 PM](https://user-images.githubusercontent.com/91640048/199855663-7878e6fe-ad07-4b19-8bf6-b05b52fc140d.png)
 
