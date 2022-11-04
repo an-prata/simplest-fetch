@@ -107,7 +107,7 @@ int main() {
 	printf("%s", topMargin);
 	printf("%s  Kernel:\t\t%s\n", leftMargin, kernelVersion);
 	printf("%s  Hostname:\t\t%s\n", leftMargin, utsname.nodename);
-	printf("%s  Processor Model:\t%s", leftMargin, cpu_model);
+	printf("%s  Processor Model:\t%s", leftMargin, cpu_model);
 	printf("%s  Memory Capacity:\t%3.1f %s\n", leftMargin, memCapacity, memUnit);
 	printf("%s  Drive Capacity:\t%3.1f %s used of %3.1f %s\n", leftMargin, rootUsedDec, unit, rootSizeDec, unit);
 	printf("%s\n", topMargin);
