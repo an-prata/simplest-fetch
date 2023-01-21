@@ -1,7 +1,7 @@
 // Copyright (c) 2022 Evan Overman (https://an-prata.it). Licensed under the MIT License.
 // See LICENSE file in repository root for complete license text.
 
-#define NUMBER_OF_LINES 3
+#define NUMBER_OF_LINES 7
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -68,17 +68,22 @@ int main() {
 	int windowHeight;
 	get_window_size(&windowWidth, &windowHeight);
 
-	int leftMarginLength = (windowWidth - strlen(cpu_model) - 15) / 2;
+	int leftMarginLength = ((windowWidth - strlen(cpu_model)) / 2) - 12;
 	int topMarginLength = (windowHeight - NUMBER_OF_LINES) / 2;
-	char* leftMargin = malloc(leftMarginLength / 8);
-	char* topMargin = malloc(topMarginLength);
+	int colorSpacingLength = ((windowWidth - (leftMarginLength * 2)) / 8);
+	char* leftMargin = malloc(leftMarginLength + 1);
+	char* topMargin = malloc(topMarginLength + 1);
+	char* colorSpacing = malloc(colorSpacingLength + 1);
 	
-	for (int i = 0; i < leftMarginLength / 8; i++)
-		leftMargin[i] = '\t';
+	memset(leftMargin, ' ', leftMarginLength);
+	leftMargin[leftMarginLength + 1] = '\0';
+	
+	memset(topMargin, '\n', topMarginLength);
+	topMargin[topMarginLength + 1] = '\0';
 
-	for (int i = 0; i < topMarginLength - 1; i++)
-		topMargin[i] = '\n';
-
+	memset(colorSpacing, ' ', colorSpacingLength);
+	colorSpacing[colorSpacingLength + 1] = '\0';
+	
 	// Cut down utsname.release to be just the kernel version.
 	char* kernelVersion = strtok(utsname.release, "-");
 
@@ -110,8 +115,17 @@ int main() {
 	printf("%s  Processor Model:\t%s", leftMargin, cpu_model);
 	printf("%s  Memory Capacity:\t%3.1f %s\n", leftMargin, memCapacity, memUnit);
 	printf("%s  Drive Capacity:\t%3.1f %s used of %3.1f %s\n", leftMargin, rootUsedDec, unit, rootSizeDec, unit);
-	printf("%s\n", topMargin);
+	printf("\n");
+	printf("%s\033[40m%s\033[0m", leftMargin, colorSpacing);
+	printf("\033[41m%s\033[0m", colorSpacing);
+	printf("\033[42m%s\033[0m", colorSpacing);
+	printf("\033[43m%s\033[0m", colorSpacing);
+	printf("\033[44m%s\033[0m", colorSpacing);
+	printf("\033[45m%s\033[0m", colorSpacing);
+	printf("\033[46m%s\033[0m", colorSpacing);
+	printf("\033[47m%s\033[0m", colorSpacing);
 	
+	printf("%s\n", topMargin);
 	// Keep the terminal prompt from showing until enter key is pressed
 	getchar();
 
