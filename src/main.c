@@ -124,10 +124,11 @@ int main() {
 	printf("\033[45m%s\033[0m", colorSpacing);
 	printf("\033[46m%s\033[0m", colorSpacing);
 	printf("\033[47m%s\033[0m", colorSpacing);
-	
+	printf("\033[?25l"); // Hide cursor
 	printf("%s\n", topMargin);
 	// Keep the terminal prompt from showing until enter key is pressed
 	getchar();
+	printf("\033[?25h"); // show cursor
 
 	return 0;
 }
