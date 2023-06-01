@@ -34,7 +34,7 @@ char* get_cpu_model() {
         }
     }
 
-    return "";
+    return NULL;
 }
 
 int get_root_size(unsigned long* size, unsigned long* usage) {

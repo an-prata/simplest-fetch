@@ -69,12 +69,11 @@ int main(int argc, char** argv) {
 	}
 	
 	struct utsname utsname;
-	struct utsname* utsname_ptr = &utsname;	
-	uname(utsname_ptr);
+	uname(&utsname);
 
 	char* cpu_model = get_cpu_model();
 
-	if (cpu_model[0] == '\0')
+	if (!cpu_model)
 		perror("Failed to retrieve cpu model.");
 
 	int windowWidth;
