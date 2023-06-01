@@ -1,8 +1,6 @@
 // Copyright (c) 2022 Evan Overman (https://an-prata.it). Licensed under the MIT License.
 // See LICENSE file in repository root for complete license text.
 
-#define PROC_CPU_INFO "/proc/cpuinfo"
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -12,12 +10,12 @@
 
 char* get_cpu_model() {
     FILE* cpuinfo_file;
-    cpuinfo_file = fopen(PROC_CPU_INFO, "r");
+    cpuinfo_file = fopen("/proc/cpuinfo", "r");
 
-    if (cpuinfo_file == NULL) {
+    if (!cpuinfo_file) {
         char* err = malloc(30);
         strncpy(err, "Could not read ", 30);
-        strncat(err, PROC_CPU_INFO, 30);
+        strncat(err, "/proc/cpuinfo", 30);
 
         perror(err);
         exit(EXIT_FAILURE);
@@ -25,8 +23,8 @@ char* get_cpu_model() {
 
 	char* line = malloc(1024);
 
-    while(fgets(line, 1024, cpuinfo_file) != NULL) {
-        if (strstr(line, "model name") != NULL) {
+    while(fgets(line, 1024, cpuinfo_file)) {
+        if (strstr(line, "model name")) {
             char* cpu_name = malloc(strlen(line) - 13);
 
             for (int character = 13; character < strlen(line); character++)
@@ -36,13 +34,13 @@ char* get_cpu_model() {
         }
     }
 
-    return "\0";
+    return "";
 }
 
 int get_root_size(unsigned long* size, unsigned long* usage) {
     struct statvfs filesystemStats;
 
-    if (statvfs("/etc/fstab", &filesystemStats) != 0) {
+    if (statvfs("/etc/fstab", &filesystemStats)) {
         perror("Failed to retrieve file system information");
         return -1;
     }
@@ -55,10 +53,10 @@ int get_root_size(unsigned long* size, unsigned long* usage) {
 long get_memory_capacity() {
     char memCapacityStr[64];
     FILE* meminfo = fopen("/proc/meminfo", "r");
-    bool numberFinishedReading = false;
     bool foundNumber = false;
+    int c = 0;
 
-    for (int c = 0; !numberFinishedReading;) {
+    while (true) {
         char cc = fgetc(meminfo);
 
         if (strchr("1234567890", cc) != NULL) {
@@ -66,11 +64,11 @@ long get_memory_capacity() {
             memCapacityStr[c] = cc;
             c++; // hehe, c++
         } else if (foundNumber) {
-            numberFinishedReading = true;
+            break;
         }
     }
 
 	// meminfo is in KB to multiply by 1000.
-    return atol(memCapacityStr) * 1000;
+    return ferror(meminfo) ? -1 : atol(memCapacityStr) * 1000;
 }
 
