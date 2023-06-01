@@ -1,6 +1,9 @@
 // Copyright (c) 2022 Evan Overman (https://an-prata.it). Licensed under the MIT License.
 // See LICENSE file in repository root for complete license text.
 
+#ifndef SYSINF_H
+#define SYSINF_H
+
 /// Gets the CPU model from PROC_CPU_INFO.
 ///
 /// @returns
@@ -27,3 +30,4 @@ int get_root_size(unsigned long* size, unsigned long* usage);
 /// The device's memory capacity in bytes.
 long get_memory_capacity();
 
+#endif // SYSINF_H
