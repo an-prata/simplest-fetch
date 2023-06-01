@@ -10,6 +10,9 @@
 #include <sys/ioctl.h>
 #include "sysinf.h"
 
+static int base_1024 = 0; 
+static double base = 1000;
+
 /// Gets the size of the current terminal window.
 ///
 /// @param width
@@ -28,33 +31,43 @@ int get_window_size(int* width, int* height) {
 }
 
 char* unit_from_power(int power) {
-	char* unit = malloc(3);
+	char* unit = malloc(base_1024 ? 4 : 3);
 
 	switch (power) {
 		case 0:
 			unit = "B";
 			break;
 		case 1:
-			unit = "KiB";
+			unit = base_1024 ? "KiB" : "KB";
 			break;
 		case 2:
-			unit = "MiB";
+			unit = base_1024 ? "MiB" : "MB";
 			break;
 		case 3:
-			unit = "GiB";
+			unit = base_1024 ? "GiB" : "GB";
 			break;
 		case 4:
-			unit = "TiB";
+			unit = base_1024 ? "TiB" : "TB";
 			break;
 		case 5:
-			unit = "PiB";
+			unit = base_1024 ? "PiB" : "PB";
 			break;
 	}
 
 	return unit;
 }
 
-int main() {
+int main(int argc, char** argv) {
+	if (argc > 1) {
+		if (!strcmp(argv[1], "help")) {
+			printf("use -i for base 1024, ommit for base 1000\n");
+			exit(0);
+		}
+		
+		base_1024 = !strcmp(argv[1], "-i");
+		base = base_1024 ? 1024.0 : 1000.0;
+	}
+	
 	struct utsname utsname;
 	struct utsname* utsname_ptr = &utsname;	
 	uname(utsname_ptr);
@@ -95,17 +108,17 @@ int main() {
 	double rootSizeDec = (double)rootSize;
 	double rootUsedDec = (double)rootUsed;
 
-	for (power = 0; rootSizeDec > 1024.0; power++) {
-		rootSizeDec /= 1024.0;
-		rootUsedDec /= 1024.0;
+	for (power = 0; rootSizeDec > base; power++) {
+		rootSizeDec /= base;
+		rootUsedDec /= base;
 	}
 
 	char* unit = unit_from_power(power);
 
 	double memCapacity = (double)get_memory_capacity();
 
-	for (power = 0; memCapacity > 1024.0; power++)
-		memCapacity /= 1024.0;
+	for (power = 0; memCapacity > base; power++)
+		memCapacity /= base;
 
 	char* memUnit = unit_from_power(power);
 
