@@ -83,8 +83,10 @@ int main(int argc, char** argv) {
 	get_window_size(&window_width, &window_height);
 
 	unsigned int left_margin_length = ((window_width - strlen(cpu_model) - strlen(LABEL_PROC)) / 2);
+	int gap = (window_height / 4) - NUMBER_OF_LINES - 2;
 	unsigned int top_margin_length = (window_height - NUMBER_OF_LINES) / 2;
-	unsigned int color_spacing_length = ((window_width - (left_margin_length * 2)) / 8);
+	unsigned int color_spacing_length = window_width / 12;
+
 	char* left_margin = malloc(left_margin_length + 1);
 	char* top_margin = malloc(top_margin_length + 1);
 	char* color_spacing = malloc(color_spacing_length + 1);
@@ -122,6 +124,9 @@ int main(int argc, char** argv) {
 
 	char* mem_unit = unit_from_power(power);
 
+	if (gap < 1)
+		gap = 1;
+	
 	// Center contents
 	printf("%s", top_margin);
 
@@ -131,10 +136,12 @@ int main(int argc, char** argv) {
 	printf("%s%s%s", left_margin, LABEL_PROC, cpu_model);
 	printf("%s%s%3.1f %s\n", left_margin, LABEL_MEM, mem_capacity, mem_unit);
 	printf("%s%s%3.1f %s used of %3.1f %s\n", left_margin, LABEL_STOR, root_used_dec, unit, root_size_dec, unit);
-	printf("\n");
+
+	for (unsigned int i = 0; i < gap && gap != 0; i++)
+		printf("\n");
 
 	// Print color blocks
-	printf("%s", left_margin);
+	printf("%s%s", color_spacing, color_spacing);
 	printf("%s%s%s", COLOR_0, color_spacing, COLOR_RESET);
 	printf("%s%s%s", COLOR_1, color_spacing, COLOR_RESET);
 	printf("%s%s%s", COLOR_2, color_spacing, COLOR_RESET);
