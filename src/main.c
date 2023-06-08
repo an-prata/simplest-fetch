@@ -85,11 +85,13 @@ int main(int argc, char** argv) {
 	unsigned int left_margin_length = ((window_width - strlen(cpu_model) - strlen(LABEL_PROC)) / 2);
 	int gap = (window_height / 4) - NUMBER_OF_LINES - 2;
 	unsigned int top_margin_length = (window_height - NUMBER_OF_LINES) / 2;
-	unsigned int color_spacing_length = window_width / 12;
+	unsigned int color_spacing_length;
+	unsigned int color_margin_length = calc_color_margin(window_width, &color_spacing_length);
 
 	char* left_margin = malloc(left_margin_length + 1);
 	char* top_margin = malloc(top_margin_length + 1);
 	char* color_spacing = malloc(color_spacing_length + 1);
+	char* color_margin = malloc(color_margin_length + 1);
 	
 	memset(left_margin, ' ', left_margin_length);
 	left_margin[left_margin_length + 1] = '\0';
@@ -99,6 +101,9 @@ int main(int argc, char** argv) {
 
 	memset(color_spacing, ' ', color_spacing_length);
 	color_spacing[color_spacing_length + 1] = '\0';
+	
+	memset(color_margin, ' ', color_margin_length);
+	color_margin[color_margin_length + 1] = '\0';
 	
 	// Cut down utsname.release to be just the kernel version.
 	char* kernel_version = strtok(utsname.release, "-");
@@ -141,7 +146,7 @@ int main(int argc, char** argv) {
 		printf("\n");
 
 	// Print color blocks
-	printf("%s%s", color_spacing, color_spacing);
+	printf("%s", color_margin);
 	printf("%s%s%s", COLOR_0, color_spacing, COLOR_RESET);
 	printf("%s%s%s", COLOR_1, color_spacing, COLOR_RESET);
 	printf("%s%s%s", COLOR_2, color_spacing, COLOR_RESET);

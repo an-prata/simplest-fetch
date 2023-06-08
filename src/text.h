@@ -23,4 +23,6 @@
 #define CURSOR_HIDE "\033[?25l"
 #define CURSOR_SHOW "\033[?25h"
 
+unsigned int calc_color_margin(unsigned short window_width, unsigned int* color_width);
+
 #endif // TEXT_H
