@@ -63,6 +63,8 @@ long get_memory_capacity() {
         }
         
         if (strchr("1234567890", cc)) {
+            mem_capacity_str[c] = cc;
+            c++;
             break;
         }
     }
