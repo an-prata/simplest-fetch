@@ -9,6 +9,9 @@
 #include <sys/utsname.h>
 #include <sys/ioctl.h>
 #include "sysinf.h"
+#include "text.h"
+
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 static int base_1024 = 0; 
 static double base = 1000;
@@ -79,7 +82,7 @@ int main(int argc, char** argv) {
 	unsigned short window_width, window_height;
 	get_window_size(&window_width, &window_height);
 
-	unsigned int left_margin_length = ((window_width - strlen(cpu_model)) / 2) - 12;
+	unsigned int left_margin_length = ((window_width - strlen(cpu_model) - strlen(LABEL_PROC)) / 2);
 	unsigned int top_margin_length = (window_height - NUMBER_OF_LINES) / 2;
 	unsigned int color_spacing_length = ((window_width - (left_margin_length * 2)) / 8);
 	char* left_margin = malloc(left_margin_length + 1);
@@ -119,26 +122,37 @@ int main(int argc, char** argv) {
 
 	char* mem_unit = unit_from_power(power);
 
+	// Center contents
 	printf("%s", top_margin);
-	printf("%s  Kernel:\t\t%s\n", left_margin, kernel_version);
-	printf("%s  Hostname:\t\t%s\n", left_margin, utsname.nodename);
-	printf("%s  Processor Model:\t%s", left_margin, cpu_model);
-	printf("%s  Memory Capacity:\t%3.1f %s\n", left_margin, mem_capacity, mem_unit);
-	printf("%s  Drive Capacity:\t%3.1f %s used of %3.1f %s\n", left_margin, root_used_dec, unit, root_size_dec, unit);
+
+	// Hardware and OS stats
+	printf("%s%s%s\n", left_margin, LABEL_KERN, kernel_version);
+	printf("%s%s%s\n", left_margin, LABEL_HOST, utsname.nodename);
+	printf("%s%s%s", left_margin, LABEL_PROC, cpu_model);
+	printf("%s%s%3.1f %s\n", left_margin, LABEL_MEM, mem_capacity, mem_unit);
+	printf("%s%s%3.1f %s used of %3.1f %s\n", left_margin, LABEL_STOR, root_used_dec, unit, root_size_dec, unit);
 	printf("\n");
-	printf("%s\033[40m%s\033[0m", left_margin, color_spacing);
-	printf("\033[41m%s\033[0m", color_spacing);
-	printf("\033[42m%s\033[0m", color_spacing);
-	printf("\033[43m%s\033[0m", color_spacing);
-	printf("\033[44m%s\033[0m", color_spacing);
-	printf("\033[45m%s\033[0m", color_spacing);
-	printf("\033[46m%s\033[0m", color_spacing);
-	printf("\033[47m%s\033[0m", color_spacing);
-	printf("\033[?25l"); // Hide cursor
-	printf("%s\n", top_margin);
+
+	// Print color blocks
+	printf("%s", left_margin);
+	printf("%s%s%s", COLOR_0, color_spacing, COLOR_RESET);
+	printf("%s%s%s", COLOR_1, color_spacing, COLOR_RESET);
+	printf("%s%s%s", COLOR_2, color_spacing, COLOR_RESET);
+	printf("%s%s%s", COLOR_3, color_spacing, COLOR_RESET);
+	printf("%s%s%s", COLOR_4, color_spacing, COLOR_RESET);
+	printf("%s%s%s", COLOR_5, color_spacing, COLOR_RESET);
+	printf("%s%s%s", COLOR_6, color_spacing, COLOR_RESET);
+	printf("%s%s%s", COLOR_7, color_spacing, COLOR_RESET);
+	printf("\n");
+
+	// Print to the bottom of the screen
+	printf("%s", top_margin);
+
+	printf(CURSOR_HIDE);
+
 	// Keep the terminal prompt from showing until enter key is pressed
 	getchar();
-	printf("\033[?25h"); // show cursor
+	printf(CURSOR_SHOW); // show cursor
 
 	return 0;
 }
