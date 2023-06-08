@@ -20,12 +20,12 @@ static double base = 1000;
 ///
 /// @param height 
 /// A pointer to an int that will store the window's height.
-int get_window_size(int* width, int* height) {
-	struct winsize windowSize;
-	ioctl(0, TIOCGWINSZ, &windowSize);
+int get_window_size(unsigned short* width, unsigned short* height) {
+	struct winsize window_size;
+	ioctl(0, TIOCGWINSZ, &window_size);
 
-	*width = windowSize.ws_col;
-	*height = windowSize.ws_row;
+	*width = window_size.ws_col;
+	*height = window_size.ws_row;
 
 	return 0;
 }
@@ -76,68 +76,66 @@ int main(int argc, char** argv) {
 	if (!cpu_model)
 		perror("Failed to retrieve cpu model.");
 
-	int windowWidth;
-	int windowHeight;
-	get_window_size(&windowWidth, &windowHeight);
+	unsigned short window_width, window_height;
+	get_window_size(&window_width, &window_height);
 
-	int leftMarginLength = ((windowWidth - strlen(cpu_model)) / 2) - 12;
-	int topMarginLength = (windowHeight - NUMBER_OF_LINES) / 2;
-	int colorSpacingLength = ((windowWidth - (leftMarginLength * 2)) / 8);
-	char* leftMargin = malloc(leftMarginLength + 1);
-	char* topMargin = malloc(topMarginLength + 1);
-	char* colorSpacing = malloc(colorSpacingLength + 1);
+	unsigned int left_margin_length = ((window_width - strlen(cpu_model)) / 2) - 12;
+	unsigned int top_margin_length = (window_height - NUMBER_OF_LINES) / 2;
+	unsigned int color_spacing_length = ((window_width - (left_margin_length * 2)) / 8);
+	char* left_margin = malloc(left_margin_length + 1);
+	char* top_margin = malloc(top_margin_length + 1);
+	char* color_spacing = malloc(color_spacing_length + 1);
 	
-	memset(leftMargin, ' ', leftMarginLength);
-	leftMargin[leftMarginLength + 1] = '\0';
+	memset(left_margin, ' ', left_margin_length);
+	left_margin[left_margin_length + 1] = '\0';
 	
-	memset(topMargin, '\n', topMarginLength);
-	topMargin[topMarginLength + 1] = '\0';
+	memset(top_margin, '\n', top_margin_length);
+	top_margin[top_margin_length + 1] = '\0';
 
-	memset(colorSpacing, ' ', colorSpacingLength);
-	colorSpacing[colorSpacingLength + 1] = '\0';
+	memset(color_spacing, ' ', color_spacing_length);
+	color_spacing[color_spacing_length + 1] = '\0';
 	
 	// Cut down utsname.release to be just the kernel version.
-	char* kernelVersion = strtok(utsname.release, "-");
+	char* kernel_version = strtok(utsname.release, "-");
 
 	int power;
-	unsigned long rootSize;
-	unsigned long rootUsed;
-	get_root_size(&rootSize, &rootUsed);
+	unsigned long root_size, root_used;
+	get_root_size(&root_size, &root_used);
 
-	double rootSizeDec = (double)rootSize;
-	double rootUsedDec = (double)rootUsed;
+	double root_size_dec = (double)root_size;
+	double root_used_dec = (double)root_used;
 
-	for (power = 0; rootSizeDec > base; power++) {
-		rootSizeDec /= base;
-		rootUsedDec /= base;
+	for (power = 0; root_size_dec > base; power++) {
+		root_size_dec /= base;
+		root_used_dec /= base;
 	}
 
 	char* unit = unit_from_power(power);
 
-	double memCapacity = (double)get_memory_capacity();
+	double mem_capacity = (double)get_memory_capacity();
 
-	for (power = 0; memCapacity > base; power++)
-		memCapacity /= base;
+	for (power = 0; mem_capacity > base; power++)
+		mem_capacity /= base;
 
-	char* memUnit = unit_from_power(power);
+	char* mem_unit = unit_from_power(power);
 
-	printf("%s", topMargin);
-	printf("%s  Kernel:\t\t%s\n", leftMargin, kernelVersion);
-	printf("%s  Hostname:\t\t%s\n", leftMargin, utsname.nodename);
-	printf("%s  Processor Model:\t%s", leftMargin, cpu_model);
-	printf("%s  Memory Capacity:\t%3.1f %s\n", leftMargin, memCapacity, memUnit);
-	printf("%s  Drive Capacity:\t%3.1f %s used of %3.1f %s\n", leftMargin, rootUsedDec, unit, rootSizeDec, unit);
+	printf("%s", top_margin);
+	printf("%s  Kernel:\t\t%s\n", left_margin, kernel_version);
+	printf("%s  Hostname:\t\t%s\n", left_margin, utsname.nodename);
+	printf("%s  Processor Model:\t%s", left_margin, cpu_model);
+	printf("%s  Memory Capacity:\t%3.1f %s\n", left_margin, mem_capacity, mem_unit);
+	printf("%s  Drive Capacity:\t%3.1f %s used of %3.1f %s\n", left_margin, root_used_dec, unit, root_size_dec, unit);
 	printf("\n");
-	printf("%s\033[40m%s\033[0m", leftMargin, colorSpacing);
-	printf("\033[41m%s\033[0m", colorSpacing);
-	printf("\033[42m%s\033[0m", colorSpacing);
-	printf("\033[43m%s\033[0m", colorSpacing);
-	printf("\033[44m%s\033[0m", colorSpacing);
-	printf("\033[45m%s\033[0m", colorSpacing);
-	printf("\033[46m%s\033[0m", colorSpacing);
-	printf("\033[47m%s\033[0m", colorSpacing);
+	printf("%s\033[40m%s\033[0m", left_margin, color_spacing);
+	printf("\033[41m%s\033[0m", color_spacing);
+	printf("\033[42m%s\033[0m", color_spacing);
+	printf("\033[43m%s\033[0m", color_spacing);
+	printf("\033[44m%s\033[0m", color_spacing);
+	printf("\033[45m%s\033[0m", color_spacing);
+	printf("\033[46m%s\033[0m", color_spacing);
+	printf("\033[47m%s\033[0m", color_spacing);
 	printf("\033[?25l"); // Hide cursor
-	printf("%s\n", topMargin);
+	printf("%s\n", top_margin);
 	// Keep the terminal prompt from showing until enter key is pressed
 	getchar();
 	printf("\033[?25h"); // show cursor

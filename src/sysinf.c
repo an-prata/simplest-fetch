@@ -38,37 +38,47 @@ char* get_cpu_model() {
 }
 
 int get_root_size(unsigned long* size, unsigned long* usage) {
-    struct statvfs filesystemStats;
+    struct statvfs filesystem_stats;
 
-    if (statvfs("/etc/fstab", &filesystemStats)) {
+    if (statvfs("/etc/fstab", &filesystem_stats)) {
         perror("Failed to retrieve file system information");
         return -1;
     }
 
-    *size = filesystemStats.f_frsize * filesystemStats.f_blocks;
-    *usage = filesystemStats.f_frsize * (filesystemStats.f_blocks - filesystemStats.f_bfree);
+    *size = filesystem_stats.f_frsize * filesystem_stats.f_blocks;
+    *usage = filesystem_stats.f_frsize * (filesystem_stats.f_blocks - filesystem_stats.f_bfree);
     return 0;
 }
 
 long get_memory_capacity() {
-    char memCapacityStr[64];
+    char mem_capacity_str[64];
     FILE* meminfo = fopen("/proc/meminfo", "r");
-    bool foundNumber = false;
     int c = 0;
 
     while (true) {
         char cc = fgetc(meminfo);
 
-        if (strchr("1234567890", cc) != NULL) {
-            foundNumber = true;
-            memCapacityStr[c] = cc;
-            c++; // hehe, c++
-        } else if (foundNumber) {
+        if (cc == EOF) {
+            return -1;
+        }
+        
+        if (strchr("1234567890", cc)) {
             break;
         }
     }
 
+    while (true) {
+        char cc = fgetc(meminfo);
+        
+        if (!strchr("1234567890", cc)) {
+            break;
+        }
+
+        mem_capacity_str[c] = cc;
+        c++;
+    }
+
 	// meminfo is in KB to multiply by 1000.
-    return ferror(meminfo) ? -1 : atol(memCapacityStr) * 1000;
+    return ferror(meminfo) ? -1 : atol(mem_capacity_str) * 1000;
 }
 
