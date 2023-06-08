@@ -6,9 +6,16 @@
 
 /// Gets the CPU model from PROC_CPU_INFO.
 ///
+/// @param cpu_model
+/// char pointer that will have at most `len` bytes of the cpu model string 
+/// copied to it.
+///
+/// @param len
+/// max number of bytes to copy to `cpu_model`.
+///
 /// @returns
-/// The name of the system's CPU model. NULL on failiure.
-char* get_cpu_model();
+/// non 0 on failure
+int get_cpu_model(char* cpu_model, unsigned long len);
 
 /// Gets the size and usage of the root filesystem.
 ///

@@ -8,33 +8,33 @@
 #include <sys/statvfs.h>
 #include "sysinf.h"
 
-char* get_cpu_model() {
+int get_cpu_model(char* cpu_model, unsigned long len) {
     FILE* cpuinfo_file;
     cpuinfo_file = fopen("/proc/cpuinfo", "r");
 
     if (!cpuinfo_file) {
-        char* err = malloc(30);
+        char err[64];
+        
         strncpy(err, "Could not read ", 30);
         strncat(err, "/proc/cpuinfo", 30);
-
         perror(err);
+        
         exit(EXIT_FAILURE);
     }
 
-	char* line = malloc(1024);
+	char line[1024];
 
-    while(fgets(line, 1024, cpuinfo_file)) {
+    while (fgets(line, 1024, cpuinfo_file)) {
         if (strstr(line, "model name")) {
-            char* cpu_name = malloc(strlen(line) - 13);
-
-            for (int character = 13; character < strlen(line); character++)
-                cpu_name[character - 13] = line[character];
-
-            return cpu_name;
+            // Go to the thrid character. The first is the colon, second is a
+            // space, and the third is the start of the CPU model.
+            char* segment = &(strchr(line, ':')[2]);
+            memcpy(cpu_model, segment, len);
+            return 0;
         }
     }
 
-    return NULL;
+    return -1;
 }
 
 int get_root_size(unsigned long* size, unsigned long* usage) {

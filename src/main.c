@@ -74,9 +74,9 @@ int main(int argc, char** argv) {
 	struct utsname utsname;
 	uname(&utsname);
 
-	char* cpu_model = get_cpu_model();
+	char cpu_model[1024];
 
-	if (!cpu_model)
+	if (get_cpu_model(cpu_model, sizeof(cpu_model)))
 		perror("Failed to retrieve cpu model.");
 
 	unsigned short window_width, window_height;
