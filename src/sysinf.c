@@ -64,20 +64,19 @@ long get_memory_capacity() {
         
         if (strchr("1234567890", cc)) {
             mem_capacity_str[c] = cc;
-            c++;
             break;
         }
     }
 
     while (true) {
         char cc = fgetc(meminfo);
+        c++;
         
         if (!strchr("1234567890", cc)) {
             break;
         }
 
         mem_capacity_str[c] = cc;
-        c++;
     }
 
 	// meminfo is in KB to multiply by 1000.
