@@ -70,8 +70,9 @@ int main(int argc, char** argv) {
 	// This is every variable outputted as part of the fetch.
 	unsigned long stor_capacity, stor_used;
 	double stor_capacity_dec, stor_used_dec, mem_capacity;
-	char * stor_unit, * mem_unit, * kern_version, cpu_model[1024];
+	char * stor_unit, * mem_unit, * kern_version, * host_name, cpu_model[1024];
 	const char* pac_man = NULL;
+	unsigned int longest_entry_len;
 	
 	if (get_cpu_model(cpu_model, sizeof cpu_model)) {
 		perror("Failed to retrieve cpu model.");
@@ -81,6 +82,7 @@ int main(int argc, char** argv) {
 	struct utsname utsname;
 	uname(&utsname);
 	kern_version = strtok(utsname.release, "-");
+	host_name = utsname.nodename;
 
 	get_root_size(&stor_capacity, &stor_used);
 
@@ -119,6 +121,18 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	// Currently excludes memory and storage
+	longest_entry_len = MAX(
+		MAX(
+			strlen(LABEL_KERN) + strlen(kern_version),
+			strlen(LABEL_PAC) + strlen(pac_man)
+		),
+		MAX(
+			strlen(LABEL_HOST) + strlen(host_name),
+			strlen(LABEL_PROC) + strlen(cpu_model)
+		)
+	); 
+
 	// From here on is rendering.
 	printf(ALT_SCREEN_ENTER);
 	printf(CURSOR_HIDE);
@@ -141,7 +155,7 @@ int main(int argc, char** argv) {
 			long t_gap;
 			
 			get_window_size(&t_window_width, &t_window_height);
-			t_margin_side = ((t_window_width - strlen(cpu_model) - strlen(LABEL_PROC)) / 2);
+			t_margin_side = (t_window_width - longest_entry_len) / 2;
 			t_gap = (t_window_height / 4) - LABELS;
 			t_gap = t_gap < 1 ? 1 : t_gap;
 			t_margin_top = (t_window_height - (LABELS + t_gap + 1)) / 2;
@@ -182,7 +196,7 @@ int main(int argc, char** argv) {
 		printf("%s%s\n", LABEL_PAC, pac_man);
 	
 		PRINT_ITER(" ", margin_side);
-		printf("%s%s\n", LABEL_HOST, utsname.nodename);
+		printf("%s%s\n", LABEL_HOST, host_name);
 	
 		PRINT_ITER(" ", margin_side);
 		printf("%s%s", LABEL_PROC, cpu_model);
