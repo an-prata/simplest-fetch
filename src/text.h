@@ -29,7 +29,7 @@
 
 #define PRINT_ITER(s, n) \
 	for (unsigned int i = 0; i < (n); i++) \
-		printf("%s", s);
+		printf("%s", s)
 
 unsigned int calc_color_margin(unsigned short window_width, unsigned int* color_width);
 
