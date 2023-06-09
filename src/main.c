@@ -143,12 +143,9 @@ int main(int argc, char** argv) {
 			get_window_size(&t_window_width, &t_window_height);
 			t_margin_side = ((t_window_width - strlen(cpu_model) - strlen(LABEL_PROC)) / 2);
 			t_gap = (t_window_height / 4) - LABELS;
+			t_gap = t_gap < 1 ? 1 : t_gap;
 			t_margin_top = (t_window_height - (LABELS + t_gap + 1)) / 2;
 			t_margin_color = calc_color_margin(t_window_width, &t_color_block_width);
-
-			if (t_gap < 1) {
-				t_gap = 1;
-			}
 
 			if (
 				t_window_width 		== window_width 	 &&
@@ -171,6 +168,7 @@ int main(int argc, char** argv) {
 			}
 		}
 
+		printf("\033[0;0H");
 		printf(CLEAR);
 		
 		// Center contents
@@ -226,9 +224,6 @@ int main(int argc, char** argv) {
 	
 		printf("%s", COLOR_RESET);
 		printf("\n");
-
-		// Print to the bottom of the screen
-		PRINT_ITER("\n", margin_top);
 
 		usleep(100 * 1000);
 	}
