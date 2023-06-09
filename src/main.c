@@ -111,11 +111,8 @@ int main(int argc, char** argv) {
 
 		while ((dirent = readdir(dir))) {
 			for (unsigned int i = 0; i < sizeof(pac_mans) / sizeof(*pac_mans); i++) {
-				if (!strcmp(dirent->d_name, pac_mans[i])) {
-					if (i < prev_pac) {
-						pac_man = pac_mans[i];
-					}
-
+				if (!strcmp(dirent->d_name, pac_mans[i]) && i < prev_pac) {
+					pac_man = pac_mans[i];
 					prev_pac = i;
 				}
 			}
