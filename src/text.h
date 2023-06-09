@@ -23,6 +23,10 @@
 #define CURSOR_HIDE "\033[?25l"
 #define CURSOR_SHOW "\033[?25h"
 
+#define PRINT_ITER(s, n) \
+	for (unsigned int i = 0; i < (n); i++) \
+		printf("%s", s);
+
 unsigned int calc_color_margin(unsigned short window_width, unsigned int* color_width);
 
 #endif // TEXT_H

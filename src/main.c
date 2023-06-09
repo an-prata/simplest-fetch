@@ -34,30 +34,22 @@ int get_window_size(unsigned short* width, unsigned short* height) {
 }
 
 char* unit_from_power(int power) {
-	char* unit = malloc(base_1024 ? 4 : 3);
-
 	switch (power) {
 		case 0:
-			unit = "B";
-			break;
+			return "B";
 		case 1:
-			unit = base_1024 ? "KiB" : "KB";
-			break;
+			return base_1024 ? "KiB" : "KB";
 		case 2:
-			unit = base_1024 ? "MiB" : "MB";
-			break;
+			return base_1024 ? "MiB" : "MB";
 		case 3:
-			unit = base_1024 ? "GiB" : "GB";
-			break;
+			return base_1024 ? "GiB" : "GB";
 		case 4:
-			unit = base_1024 ? "TiB" : "TB";
-			break;
+			return base_1024 ? "TiB" : "TB";
 		case 5:
-			unit = base_1024 ? "PiB" : "PB";
-			break;
+			return base_1024 ? "PiB" : "PB";
 	}
 
-	return unit;
+	return base_1024 ? "?iB" : "?B";
 }
 
 int main(int argc, char** argv) {
@@ -88,23 +80,6 @@ int main(int argc, char** argv) {
 	unsigned int color_spacing_length;
 	unsigned int color_margin_length = calc_color_margin(window_width, &color_spacing_length);
 
-	char* left_margin = malloc(left_margin_length + 1);
-	char* top_margin = malloc(top_margin_length + 1);
-	char* color_spacing = malloc(color_spacing_length + 1);
-	char* color_margin = malloc(color_margin_length + 1);
-	
-	memset(left_margin, ' ', left_margin_length);
-	left_margin[left_margin_length + 1] = '\0';
-	
-	memset(top_margin, '\n', top_margin_length);
-	top_margin[top_margin_length + 1] = '\0';
-
-	memset(color_spacing, ' ', color_spacing_length);
-	color_spacing[color_spacing_length + 1] = '\0';
-	
-	memset(color_margin, ' ', color_margin_length);
-	color_margin[color_margin_length + 1] = '\0';
-	
 	// Cut down utsname.release to be just the kernel version.
 	char* kernel_version = strtok(utsname.release, "-");
 
@@ -133,33 +108,59 @@ int main(int argc, char** argv) {
 		gap = 1;
 	
 	// Center contents
-	printf("%s", top_margin);
+	PRINT_ITER("\n", top_margin_length);
 
 	// Hardware and OS stats
-	printf("%s%s%s\n", left_margin, LABEL_KERN, kernel_version);
-	printf("%s%s%s\n", left_margin, LABEL_HOST, utsname.nodename);
-	printf("%s%s%s", left_margin, LABEL_PROC, cpu_model);
-	printf("%s%s%3.1f %s\n", left_margin, LABEL_MEM, mem_capacity, mem_unit);
-	printf("%s%s%3.1f %s used of %3.1f %s\n", left_margin, LABEL_STOR, root_used_dec, unit, root_size_dec, unit);
+	PRINT_ITER(" ", left_margin_length);
+	printf("%s%s\n", LABEL_KERN, kernel_version);
+	
+	PRINT_ITER(" ", left_margin_length);
+	printf("%s%s\n", LABEL_HOST, utsname.nodename);
+	
+	PRINT_ITER(" ", left_margin_length);
+	printf("%s%s", LABEL_PROC, cpu_model);
+	
+	PRINT_ITER(" ", left_margin_length);
+	printf("%s%3.1f %s\n", LABEL_MEM, mem_capacity, mem_unit);
+	
+	PRINT_ITER(" ", left_margin_length);
+	printf("%s%3.1f %s used of %3.1f %s\n", LABEL_STOR, root_used_dec, unit, root_size_dec, unit);
 
 	for (unsigned int i = 0; i < gap && gap != 0; i++)
 		printf("\n");
 
 	// Print color blocks
-	printf("%s", color_margin);
-	printf("%s%s%s", COLOR_0, color_spacing, COLOR_RESET);
-	printf("%s%s%s", COLOR_1, color_spacing, COLOR_RESET);
-	printf("%s%s%s", COLOR_2, color_spacing, COLOR_RESET);
-	printf("%s%s%s", COLOR_3, color_spacing, COLOR_RESET);
-	printf("%s%s%s", COLOR_4, color_spacing, COLOR_RESET);
-	printf("%s%s%s", COLOR_5, color_spacing, COLOR_RESET);
-	printf("%s%s%s", COLOR_6, color_spacing, COLOR_RESET);
-	printf("%s%s%s", COLOR_7, color_spacing, COLOR_RESET);
+	PRINT_ITER(" ", color_margin_length);
+
+	printf("%s", COLOR_0);
+	PRINT_ITER(" ", color_spacing_length);
+	
+	printf("%s", COLOR_1);
+	PRINT_ITER(" ", color_spacing_length);
+	
+	printf("%s", COLOR_2);
+	PRINT_ITER(" ", color_spacing_length);
+	
+	printf("%s", COLOR_3);
+	PRINT_ITER(" ", color_spacing_length);
+	
+	printf("%s", COLOR_4);
+	PRINT_ITER(" ", color_spacing_length);
+	
+	printf("%s", COLOR_5);
+	PRINT_ITER(" ", color_spacing_length);
+	
+	printf("%s", COLOR_6);
+	PRINT_ITER(" ", color_spacing_length);
+	
+	printf("%s", COLOR_7);
+	PRINT_ITER(" ", color_spacing_length);
+	
+	printf("%s", COLOR_RESET);
 	printf("\n");
 
 	// Print to the bottom of the screen
-	printf("%s", top_margin);
-
+	PRINT_ITER("\n", top_margin_length)
 	printf(CURSOR_HIDE);
 
 	// Keep the terminal prompt from showing until enter key is pressed
