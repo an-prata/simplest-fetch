@@ -23,10 +23,18 @@
 #define CURSOR_HIDE "\033[?25l"
 #define CURSOR_SHOW "\033[?25h"
 
+#define ALT_SCREEN_ENTER "\033[?47h"
+#define ALT_SCREEN_EXIT "\033[?47l"
+#define CLEAR "\033[2J"
+
 #define PRINT_ITER(s, n) \
 	for (unsigned int i = 0; i < (n); i++) \
 		printf("%s", s);
 
 unsigned int calc_color_margin(unsigned short window_width, unsigned int* color_width);
+
+int disable_canonical_input(void);
+
+int enable_canonical_input(void);
 
 #endif // TEXT_H
