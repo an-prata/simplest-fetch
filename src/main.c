@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <sys/utsname.h>
 #include <sys/ioctl.h>
@@ -69,8 +70,9 @@ int main(int argc, char** argv) {
 
 	char cpu_model[1024];
 
-	if (get_cpu_model(cpu_model, sizeof(cpu_model)))
+	if (get_cpu_model(cpu_model, sizeof(cpu_model))) {
 		perror("Failed to retrieve cpu model.");
+	}
 
 	// Cut down utsname.release to be just the kernel version.
 	char* kernel_version = strtok(utsname.release, "-");
@@ -91,8 +93,9 @@ int main(int argc, char** argv) {
 
 	double mem_capacity = (double)get_memory_capacity();
 
-	for (power = 0; mem_capacity > base; power++)
+	for (power = 0; mem_capacity > base; power++) {
 		mem_capacity /= base;
+	}
 
 	char* mem_unit = unit_from_power(power);
 
@@ -100,82 +103,108 @@ int main(int argc, char** argv) {
 	printf(ALT_SCREEN_ENTER);
 	printf(CURSOR_HIDE);
 	disable_canonical_input();
+
+	unsigned short window_width, window_height;
+	unsigned int margin_side, margin_top, margin_color, color_block_width, gap;
 	
-	while (1) {
-		unsigned short window_width, window_height;
-		get_window_size(&window_width, &window_height);
+	while (true) {
+		// quit on keyboard input
+		char in[1];
+		if (read(STDIN_FILENO, in, 1)) {
+			break;
+		}
 
-		unsigned int left_margin_length = ((window_width - strlen(cpu_model) - strlen(LABEL_PROC)) / 2);
-		int gap = (window_height / 4) - NUMBER_OF_LINES - 2;
-		unsigned int top_margin_length = (window_height - NUMBER_OF_LINES) / 2;
-		unsigned int color_spacing_length;
-		unsigned int color_margin_length = calc_color_margin(window_width, &color_spacing_length);
+		{
+			unsigned short t_window_width, t_window_height;
+			unsigned int t_margin_side, t_margin_top, t_margin_color, t_color_block_width;
+			long t_gap;
+			
+			get_window_size(&t_window_width, &t_window_height);
+			t_margin_side = ((t_window_width - strlen(cpu_model) - strlen(LABEL_PROC)) / 2);
+			t_gap = (t_window_height / 4) - NUMBER_OF_LINES - 2;
+			t_margin_top = (t_window_height - NUMBER_OF_LINES) / 2;
+			t_margin_color = calc_color_margin(t_window_width, &t_color_block_width);
 
-		if (gap < 1)
-			gap = 1;
+			if (t_gap < 1) {
+				t_gap = 1;
+			}
+
+			if (
+				t_window_width 		== window_width 	 &&
+				t_window_height 	== window_height 	 &&
+				t_margin_side 		== margin_side 		 &&
+				t_margin_top 		== margin_top 		 &&
+				t_margin_color 		== margin_color 	 &&
+				t_color_block_width == color_block_width &&
+				t_gap 				== gap
+			) {
+				continue;
+			} else {
+				window_width 		= t_window_width; 
+				window_height 		= t_window_height; 
+				margin_side 		= t_margin_side; 
+				margin_top 			= t_margin_top;
+				margin_color 		= t_margin_color; 
+				color_block_width 	= t_color_block_width; 
+				gap 				= t_gap;
+			}
+		}
 
 		printf(CLEAR);
 		
 		// Center contents
-		PRINT_ITER("\n", top_margin_length);
+		PRINT_ITER("\n", margin_top);
 
 		// Hardware and OS stats
-		PRINT_ITER(" ", left_margin_length);
+		PRINT_ITER(" ", margin_side);
 		printf("%s%s\n", LABEL_KERN, kernel_version);
 	
-		PRINT_ITER(" ", left_margin_length);
+		PRINT_ITER(" ", margin_side);
 		printf("%s%s\n", LABEL_HOST, utsname.nodename);
 	
-		PRINT_ITER(" ", left_margin_length);
+		PRINT_ITER(" ", margin_side);
 		printf("%s%s", LABEL_PROC, cpu_model);
 	
-		PRINT_ITER(" ", left_margin_length);
+		PRINT_ITER(" ", margin_side);
 		printf("%s%3.1f %s\n", LABEL_MEM, mem_capacity, mem_unit);
 	
-		PRINT_ITER(" ", left_margin_length);
+		PRINT_ITER(" ", margin_side);
 		printf("%s%3.1f %s used of %3.1f %s\n", LABEL_STOR, root_used_dec, unit, root_size_dec, unit);
 
-		for (unsigned int i = 0; i < gap && gap != 0; i++)
-			printf("\n");
+		PRINT_ITER("\n", gap);
 
 		// Print color blocks
-		PRINT_ITER(" ", color_margin_length);
+		PRINT_ITER(" ", margin_color);
 
 		printf("%s", COLOR_0);
-		PRINT_ITER(" ", color_spacing_length);
+		PRINT_ITER(" ", color_block_width);
 	
 		printf("%s", COLOR_1);
-		PRINT_ITER(" ", color_spacing_length);
+		PRINT_ITER(" ", color_block_width);
 	
 		printf("%s", COLOR_2);
-		PRINT_ITER(" ", color_spacing_length);
+		PRINT_ITER(" ", color_block_width);
 	
 		printf("%s", COLOR_3);
-		PRINT_ITER(" ", color_spacing_length);
+		PRINT_ITER(" ", color_block_width);
 	
 		printf("%s", COLOR_4);
-		PRINT_ITER(" ", color_spacing_length);
+		PRINT_ITER(" ", color_block_width);
 	
 		printf("%s", COLOR_5);
-		PRINT_ITER(" ", color_spacing_length);
+		PRINT_ITER(" ", color_block_width);
 	
 		printf("%s", COLOR_6);
-		PRINT_ITER(" ", color_spacing_length);
+		PRINT_ITER(" ", color_block_width);
 	
 		printf("%s", COLOR_7);
-		PRINT_ITER(" ", color_spacing_length);
+		PRINT_ITER(" ", color_block_width);
 	
 		printf("%s", COLOR_RESET);
 		printf("\n");
 
 		// Print to the bottom of the screen
-		PRINT_ITER("\n", top_margin_length);
-
-		char in[1];
-		ssize_t read_c = read(STDIN_FILENO, in, 1);
-
-		if (read_c)
-			break;
+		PRINT_ITER("\n", margin_top);
 
 		usleep(100 * 1000);
 	}
