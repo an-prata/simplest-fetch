@@ -15,9 +15,6 @@
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
-static int base_1024 = 0; 
-static double base = 1000;
-
 /// Gets the size of the current terminal window.
 ///
 /// @param width
@@ -35,7 +32,7 @@ int get_window_size(unsigned short* width, unsigned short* height) {
 	return 0;
 }
 
-char* unit_from_power(int power) {
+char* unit_from_power(int power, bool base_1024) {
 	switch (power) {
 		case 0:
 			return "B";
@@ -55,6 +52,9 @@ char* unit_from_power(int power) {
 }
 
 int main(int argc, char** argv) {
+	bool base_1024 = false;
+	unsigned int base = 1000;
+	
 	if (argc > 1) {
 		if (!strcmp(argv[1], "help")) {
 			printf("use -i for base 1024, ommit for base 1000\n");
@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
 		}
 		
 		base_1024 = !strcmp(argv[1], "-i");
-		base = base_1024 ? 1024.0 : 1000.0;
+		base = base_1024 ? 1024 : 1000;
 	}
 	
 	// This is every variable outputted as part of the fetch.
@@ -92,13 +92,13 @@ int main(int argc, char** argv) {
 		stor_used_dec /= base;
 	}
 
-	stor_unit = unit_from_power(e);
+	stor_unit = unit_from_power(e, base_1024);
 
 	for (e = 0; mem_capacity > base; e++) {
 		mem_capacity /= base;
 	}
 
-	mem_unit = unit_from_power(e);
+	mem_unit = unit_from_power(e, base_1024);
 
 	// From here on is rendering.
 	printf(ALT_SCREEN_ENTER);
