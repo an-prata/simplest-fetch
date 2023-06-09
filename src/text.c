@@ -9,7 +9,7 @@ static struct termios original_term_state;
 unsigned int calc_color_margin(unsigned short window_width, unsigned int* color_width) {
 	for (unsigned int margin = window_width / 12; margin < window_width; margin++) {
 		if ((window_width - margin * 2) % 8) {
-			*color_width = (window_width - margin) / 8;
+			*color_width = (window_width - margin * 2) / 8;
 			return margin;
 		}
 	}
