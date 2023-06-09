@@ -4,7 +4,9 @@
 #ifndef TEXT_H
 #define TEXT_H
 
+#define LABELS 6
 #define LABEL_KERN "  Kernel:             "
+#define LABEL_PAC  "󰏖  Package Manager:    "
 #define LABEL_HOST "  Hostname:           "
 #define LABEL_PROC "  Processor Model:    "
 #define LABEL_MEM  "  Memory Capacity:    "

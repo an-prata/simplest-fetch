@@ -2,18 +2,20 @@
 // See LICENSE file in repository root for complete license text.
 
 #include <unistd.h>
-#define NUMBER_OF_LINES 7
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <dirent.h>
 #include <sys/utsname.h>
 #include <sys/ioctl.h>
+#include "pac_man.h"
 #include "sysinf.h"
 #include "text.h"
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
+
+static const char* pac_mans[] = PAC_MANS;
 
 /// Gets the size of the current terminal window.
 ///
@@ -68,8 +70,9 @@ int main(int argc, char** argv) {
 	// This is every variable outputted as part of the fetch.
 	unsigned long stor_capacity, stor_used;
 	double stor_capacity_dec, stor_used_dec, mem_capacity;
-	char* stor_unit, * mem_unit, * kern_version, cpu_model[1024];
-
+	char * stor_unit, * mem_unit, * kern_version, cpu_model[1024];
+	const char* pac_man = NULL;
+	
 	if (get_cpu_model(cpu_model, sizeof cpu_model)) {
 		perror("Failed to retrieve cpu model.");
 	}
@@ -100,6 +103,25 @@ int main(int argc, char** argv) {
 
 	mem_unit = unit_from_power(e, base_1024);
 
+	DIR* dir = opendir("/bin");
+
+	if (dir) {
+		struct dirent* dirent;
+		unsigned int prev_pac = 0 - 1;
+
+		while ((dirent = readdir(dir))) {
+			for (unsigned int i = 0; i < sizeof(pac_mans) / sizeof(*pac_mans); i++) {
+				if (!strcmp(dirent->d_name, pac_mans[i])) {
+					if (i < prev_pac) {
+						pac_man = pac_mans[i];
+					}
+
+					prev_pac = i;
+				}
+			}
+		}
+	}
+
 	// From here on is rendering.
 	printf(ALT_SCREEN_ENTER);
 	printf(CURSOR_HIDE);
@@ -123,8 +145,8 @@ int main(int argc, char** argv) {
 			
 			get_window_size(&t_window_width, &t_window_height);
 			t_margin_side = ((t_window_width - strlen(cpu_model) - strlen(LABEL_PROC)) / 2);
-			t_gap = (t_window_height / 4) - NUMBER_OF_LINES - 2;
-			t_margin_top = (t_window_height - NUMBER_OF_LINES) / 2;
+			t_gap = (t_window_height / 4) - LABELS;
+			t_margin_top = (t_window_height - (LABELS + t_gap + 1)) / 2;
 			t_margin_color = calc_color_margin(t_window_width, &t_color_block_width);
 
 			if (t_gap < 1) {
@@ -160,6 +182,9 @@ int main(int argc, char** argv) {
 		// Hardware and OS stats
 		PRINT_ITER(" ", margin_side);
 		printf("%s%s\n", LABEL_KERN, kern_version);
+	
+		PRINT_ITER(" ", margin_side);
+		printf("%s%s\n", LABEL_PAC, pac_man);
 	
 		PRINT_ITER(" ", margin_side);
 		printf("%s%s\n", LABEL_HOST, utsname.nodename);
