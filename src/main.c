@@ -65,45 +65,47 @@ int main(int argc, char** argv) {
 		base = base_1024 ? 1024.0 : 1000.0;
 	}
 	
-	struct utsname utsname;
-	uname(&utsname);
+	// This is every variable outputted as part of the fetch.
+	unsigned long stor_capacity, stor_used;
+	double stor_capacity_dec, stor_used_dec, mem_capacity;
+	char* stor_unit, * mem_unit, * kern_version, cpu_model[1024];
 
-	char cpu_model[1024];
-
-	if (get_cpu_model(cpu_model, sizeof(cpu_model))) {
+	if (get_cpu_model(cpu_model, sizeof cpu_model)) {
 		perror("Failed to retrieve cpu model.");
 	}
 
 	// Cut down utsname.release to be just the kernel version.
-	char* kernel_version = strtok(utsname.release, "-");
+	struct utsname utsname;
+	uname(&utsname);
+	kern_version = strtok(utsname.release, "-");
 
-	int power;
-	unsigned long root_size, root_used;
-	get_root_size(&root_size, &root_used);
+	get_root_size(&stor_capacity, &stor_used);
 
-	double root_size_dec = (double)root_size;
-	double root_used_dec = (double)root_used;
+	stor_capacity_dec = (double)stor_capacity;
+	stor_used_dec = (double)stor_used;
+	mem_capacity = (double)get_memory_capacity();
 
-	for (power = 0; root_size_dec > base; power++) {
-		root_size_dec /= base;
-		root_used_dec /= base;
+	int e;
+
+	for (e = 0; stor_capacity_dec > base; e++) {
+		stor_capacity_dec /= base;
+		stor_used_dec /= base;
 	}
 
-	char* unit = unit_from_power(power);
+	stor_unit = unit_from_power(e);
 
-	double mem_capacity = (double)get_memory_capacity();
-
-	for (power = 0; mem_capacity > base; power++) {
+	for (e = 0; mem_capacity > base; e++) {
 		mem_capacity /= base;
 	}
 
-	char* mem_unit = unit_from_power(power);
+	mem_unit = unit_from_power(e);
 
 	// From here on is rendering.
 	printf(ALT_SCREEN_ENTER);
 	printf(CURSOR_HIDE);
 	disable_canonical_input();
 
+	// Everyting used for rendering
 	unsigned short window_width, window_height;
 	unsigned int margin_side, margin_top, margin_color, color_block_width, gap;
 	
@@ -157,7 +159,7 @@ int main(int argc, char** argv) {
 
 		// Hardware and OS stats
 		PRINT_ITER(" ", margin_side);
-		printf("%s%s\n", LABEL_KERN, kernel_version);
+		printf("%s%s\n", LABEL_KERN, kern_version);
 	
 		PRINT_ITER(" ", margin_side);
 		printf("%s%s\n", LABEL_HOST, utsname.nodename);
@@ -169,7 +171,7 @@ int main(int argc, char** argv) {
 		printf("%s%3.1f %s\n", LABEL_MEM, mem_capacity, mem_unit);
 	
 		PRINT_ITER(" ", margin_side);
-		printf("%s%3.1f %s used of %3.1f %s\n", LABEL_STOR, root_used_dec, unit, root_size_dec, unit);
+		printf("%s%3.1f %s used of %3.1f %s\n", LABEL_STOR, stor_used_dec, stor_unit, stor_capacity_dec, stor_unit);
 
 		PRINT_ITER("\n", gap);
 
