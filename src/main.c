@@ -69,26 +69,35 @@ int main(int argc, char** argv) {
 	
 	// This is every variable outputted as part of the fetch.
 	unsigned long stor_capacity, stor_used;
+	unsigned int longest_entry_len, mem_capacity_u;
 	double stor_capacity_dec, stor_used_dec, mem_capacity;
 	char * stor_unit, * mem_unit, * kern_version, * host_name, cpu_model[1024];
 	const char* pac_man = NULL;
-	unsigned int longest_entry_len;
 	
-	if (get_cpu_model(cpu_model, sizeof cpu_model)) {
-		perror("Failed to retrieve cpu model.");
-	}
-
 	// Cut down utsname.release to be just the kernel version.
 	struct utsname utsname;
 	uname(&utsname);
 	kern_version = strtok(utsname.release, "-");
 	host_name = utsname.nodename;
 
-	get_root_size(&stor_capacity, &stor_used);
+	if (get_cpu_model(cpu_model, sizeof cpu_model)) {
+		printf("failed to get cpu model\n");
+		exit(EXIT_FAILURE);
+	}
+
+	if (get_root_size(&stor_capacity, &stor_used)) {
+		printf("failed to stat root filesystem\n");
+		exit(EXIT_FAILURE);
+	}
+
+	if (get_memory_capacity(&mem_capacity_u)) {
+		printf("failed to get memory capacity\n");
+		exit(EXIT_FAILURE);
+	}
 
 	stor_capacity_dec = (double)stor_capacity;
 	stor_used_dec = (double)stor_used;
-	mem_capacity = (double)get_memory_capacity();
+	mem_capacity = (double)mem_capacity_u;
 
 	int e;
 

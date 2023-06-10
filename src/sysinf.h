@@ -4,6 +4,14 @@
 #ifndef SYSINF_H
 #define SYSINF_H
 
+typedef enum {
+	SI_ERR_NONE = 0,
+	SI_ERR_COULD_NOT_READ,
+	SI_ERR_COULD_NOT_FIND,
+	SI_ERR_COULD_NOT_STAT,
+	SI_ERR_COULD_NOT_OPEN
+} sysinf_err_t;
+
 /// Gets the CPU model from PROC_CPU_INFO.
 ///
 /// @param cpu_model
@@ -14,8 +22,8 @@
 /// max number of bytes to copy to `cpu_model`.
 ///
 /// @returns
-/// non 0 on failure
-int get_cpu_model(char* cpu_model, unsigned long len);
+/// sysinf_err_t
+sysinf_err_t get_cpu_model(char* cpu_model, unsigned long len);
 
 /// Gets the size and usage of the root filesystem.
 ///
@@ -28,13 +36,16 @@ int get_cpu_model(char* cpu_model, unsigned long len);
 /// drive's usage.
 ///
 /// @returns
-/// 0 on success, -1 on failiure.
-int get_root_size(unsigned long* size, unsigned long* usage);
+/// sysinf_err_t
+sysinf_err_t get_root_size(unsigned long* size, unsigned long* usage);
 
 /// Get the memory capacity of the local device.
 ///
+/// @param mem_cap
+///	pointer to an unsigned int to be the memory capacity in bytes
+///
 /// @returns
-/// The device's memory capacity in bytes.
-long get_memory_capacity();
+/// sysinf_err_t
+sysinf_err_t get_memory_capacity(unsigned int* mem_cap);
 
 #endif // SYSINF_H

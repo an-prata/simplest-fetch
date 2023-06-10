@@ -8,18 +8,12 @@
 #include <sys/statvfs.h>
 #include "sysinf.h"
 
-int get_cpu_model(char* cpu_model, unsigned long len) {
+sysinf_err_t get_cpu_model(char* cpu_model, unsigned long len) {
     FILE* cpuinfo_file;
     cpuinfo_file = fopen("/proc/cpuinfo", "r");
 
     if (!cpuinfo_file) {
-        char err[64];
-        
-        strncpy(err, "Could not read ", 30);
-        strncat(err, "/proc/cpuinfo", 30);
-        perror(err);
-        
-        exit(EXIT_FAILURE);
+        return SI_ERR_COULD_NOT_OPEN;
     }
 
 	char line[1024];
@@ -30,36 +24,43 @@ int get_cpu_model(char* cpu_model, unsigned long len) {
             // space, and the third is the start of the CPU model.
             char* segment = &(strchr(line, ':')[2]);
             memcpy(cpu_model, segment, len);
-            return 0;
+            fclose(cpuinfo_file);
+            return SI_ERR_NONE;
         }
     }
 
-    return -1;
+    fclose(cpuinfo_file);
+    return SI_ERR_COULD_NOT_FIND;
 }
 
-int get_root_size(unsigned long* size, unsigned long* usage) {
+sysinf_err_t get_root_size(unsigned long* size, unsigned long* usage) {
     struct statvfs filesystem_stats;
 
     if (statvfs("/etc/fstab", &filesystem_stats)) {
-        perror("Failed to retrieve file system information");
-        return -1;
+        return SI_ERR_COULD_NOT_STAT;
     }
 
     *size = filesystem_stats.f_frsize * filesystem_stats.f_blocks;
     *usage = filesystem_stats.f_frsize * (filesystem_stats.f_blocks - filesystem_stats.f_bfree);
-    return 0;
+    return SI_ERR_NONE;
 }
 
-long get_memory_capacity() {
+sysinf_err_t get_memory_capacity(unsigned int* mem_cap) {
     char mem_capacity_str[64];
     FILE* meminfo = fopen("/proc/meminfo", "r");
+
+    if (!meminfo) {
+        return SI_ERR_COULD_NOT_OPEN;
+    }
+    
     int c = 0;
 
     while (true) {
         char cc = fgetc(meminfo);
 
         if (cc == EOF) {
-            return -1;
+            fclose(meminfo);
+            return SI_ERR_COULD_NOT_FIND;
         }
         
         if (strchr("1234567890", cc)) {
@@ -79,7 +80,12 @@ long get_memory_capacity() {
         mem_capacity_str[c] = cc;
     }
 
-	// meminfo is in KB to multiply by 1000.
-    return ferror(meminfo) ? -1 : atol(mem_capacity_str) * 1000;
+    if (ferror(meminfo)) {
+        fclose(meminfo);
+        return SI_ERR_COULD_NOT_READ;
+    }
+
+    *mem_cap = (unsigned int)atol(mem_capacity_str) * 1000;
+    return SI_ERR_NONE;
 }
 
