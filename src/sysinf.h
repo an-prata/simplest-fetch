@@ -46,6 +46,6 @@ sysinf_err_t get_root_size(unsigned long* size, unsigned long* usage);
 ///
 /// @returns
 /// sysinf_err_t
-sysinf_err_t get_memory_capacity(unsigned int* mem_cap);
+sysinf_err_t get_memory_capacity(long* mem_cap);
 
 #endif // SYSINF_H

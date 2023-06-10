@@ -45,7 +45,7 @@ sysinf_err_t get_root_size(unsigned long* size, unsigned long* usage) {
     return SI_ERR_NONE;
 }
 
-sysinf_err_t get_memory_capacity(unsigned int* mem_cap) {
+sysinf_err_t get_memory_capacity(long* mem_cap) {
     char mem_capacity_str[64];
     FILE* meminfo = fopen("/proc/meminfo", "r");
 
@@ -85,7 +85,7 @@ sysinf_err_t get_memory_capacity(unsigned int* mem_cap) {
         return SI_ERR_COULD_NOT_READ;
     }
 
-    *mem_cap = (unsigned int)atol(mem_capacity_str) * 1000;
+    *mem_cap = atol(mem_capacity_str) * 1000;
     return SI_ERR_NONE;
 }
 

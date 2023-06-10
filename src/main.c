@@ -69,7 +69,8 @@ int main(int argc, char** argv) {
 	
 	// This is every variable outputted as part of the fetch.
 	unsigned long stor_capacity, stor_used;
-	unsigned int longest_entry_len, mem_capacity_u;
+	unsigned int longest_entry_len;
+	long mem_capacity_u;
 	double stor_capacity_dec, stor_used_dec, mem_capacity;
 	char * stor_unit, * mem_unit, * kern_version, * host_name, cpu_model[1024];
 	const char* pac_man = NULL;
