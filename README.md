@@ -4,4 +4,9 @@ The simplest fetch program you'll ever find, written in C. No seriously, this is
 
 You can use the `-i` flag for base 1024 units (KiB, MiB, GiB, etc). By default the program uses base 1000 units like above (KB, MB, GB, etc).
 
-To use this little program just clone and run the build script, an executable will appear in a new `build/` directory! I might also make releases. For both of these the only platform I'm going to actively support is linux, chances are it'll work on BSD distros but I'm not sure, same with macOS.
+## Installing
+I maintain a package for `simplest-fetch` on the AUR:
+```
+yay -S simplest-fetch-git
+```
+Alternatively you can just clone and run the build script, an executable will appear in a new `build/` directory! For both of these the only platform I'm going to actively support is linux, chances are it'll work on BSD distros but I'm not sure, same with macOS.
