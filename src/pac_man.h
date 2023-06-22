@@ -12,4 +12,6 @@
 	"apt" \
 }
 
+const char* get_pac_man();
+
 #endif // PAC_MAN_H

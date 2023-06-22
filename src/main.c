@@ -15,8 +15,6 @@
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
-static const char* pac_mans[] = PAC_MANS;
-
 /// Gets the size of the current terminal window.
 ///
 /// @param width
@@ -115,22 +113,8 @@ int main(int argc, char** argv) {
 
 	mem_unit = unit_from_power(e, base_1024);
 
-	DIR* dir = opendir("/bin");
-
-	if (dir) {
-		struct dirent* dirent;
-		unsigned int prev_pac = 0 - 1;
-
-		while ((dirent = readdir(dir))) {
-			for (unsigned int i = 0; i < sizeof(pac_mans) / sizeof(*pac_mans); i++) {
-				if (!strcmp(dirent->d_name, pac_mans[i]) && i < prev_pac) {
-					pac_man = pac_mans[i];
-					prev_pac = i;
-				}
-			}
-		}
-	}
-
+	pac_man = get_pac_man();
+	
 	// Currently excludes memory and storage
 	longest_entry_len = MAX(
 		MAX(
